@@ -1,0 +1,28 @@
+.content-section{
+    background: #ffffff;
+    padding: 10px 20px;
+    border: 1px solid #dddddd;
+    border-radius: 3px;
+    margin-bottom: 20px;
+}
+
+.homepage-button{
+    padding: 100px 20px 0px 20px;
+    color: khaki;
+}
+
+.btn-outline-dark{
+    border-radius: 20px;
+}
+
+.btn-lg{
+    height: 250px;
+    width: inherit;
+}
+
+#btn-text{
+    text-decoration: none;
+    color: inherit;
+    font-size: 30px;
+}
+
