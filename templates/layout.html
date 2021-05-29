@@ -27,6 +27,20 @@
             </div>
         </header>
         <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-12 col-md-12">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }} alert-dismissible" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                </div>
+            </div>
             <div class="row justify-content-center align-items-center">
                 {% block content %}{% endblock %}
             </div>

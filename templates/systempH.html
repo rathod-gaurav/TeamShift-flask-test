@@ -1,0 +1,64 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="col-12 col-sm-12">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('homepage') }}">Homepage</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('systemTemperature') }}">Temperature</a></li>
+        <li class="breadcrumb-item active">pH</li>
+        <li class="breadcrumb-item"><a href="{{ url_for('systemTDS') }}">EC/TDS</a></li>
+    </ol>
+</div>
+
+<div class="col-12 col-lg-8">
+    <div class="card">
+        <div class="card-header bg-dark text-white"><strong>Current pH Trend</strong></div>
+        <div class="card-body">
+            
+        </div>
+        <img class="card-img-bottom img-fluid" src="{{ pH }}" alt="Card pH plot">
+    </div>
+</div>
+<div class="col-12 col-lg-4">
+    <div class="card bg-dark mt-3">
+        <div class="card-header text-white text-center"><strong>Remarks</strong></div>
+        <div class="card-body">
+            <div class="row justify-content-center">
+                <div class="col-6 col-sm-8 col-md-6">
+                    <div class="card border-secondary bg-light text-black text-center mt-3 mb-3">
+                        <div class="card-header">Current Reading</div>
+                        <div class="card-body">
+                            <h5 class="card-title">15</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-6 col-sm-8 col-md-6">
+                    <div class="card border-secondary bg-light text-black text-center mt-3 mb-3">
+                        <div class="card-header">Average Reading</div>
+                        <div class="card-body">
+                            <h5 class="card-title">25</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-sm-8 col-md-6">
+                    <div class="card border-secondary bg-light text-black text-center mt-3 mb-3">
+                        <div class="card-header">Total Reading Count</div>
+                        <div class="card-body">
+                            <h5 class="card-title">35</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-12 col-sm-12">
+    <div class="card border-secondary bg-light mt-4 mb-4">
+        <div class="card-header bg-dark text-white"><strong>Flags</strong></div>
+        <div class="card-body">
+
+        </div>
+    </div>
+</div>
+{% endblock %}

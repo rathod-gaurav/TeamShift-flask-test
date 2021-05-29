@@ -1,12 +1,21 @@
 {% extends "layout.html" %}
 {% block content %}
     <div class="homepage-button col-10 col-md-4">
-        <button type="button" class="btn btn-lg btn-outline-dark btn-block"><a id="btn-text" href="/systemtemperature.html">Temperature</a></button>
+        <button type="button" class="btn btn-lg btn-outline-dark btn-block"><a id="btn-text" href="{{ url_for('systemTemperature') }}">Temperature</a></button>
     </div>
     <div class="homepage-button col-10 col-md-4">
-        <button type="button" class="btn btn-lg btn-outline-dark btn-block"><a id="btn-text" href="/systempH.html">pH</a></button>
+        <button type="button" class="btn btn-lg btn-outline-dark btn-block"><a id="btn-text" href="{{ url_for('systempH') }}">pH</a></button>
     </div>
     <div class="homepage-button col-10 col-md-4">
-        <button type="button" class="btn btn-lg btn-outline-dark btn-block"><a id="btn-text" href="/systemtds.html">EC/TDS</a></button>
+        <button type="button" class="btn btn-lg btn-outline-dark btn-block"><a id="btn-text" href="{{ url_for('systemTDS') }}">EC/TDS</a></button>
+    </div>
+
+    <div class="col-10 col-sm-10 current-status-and-flags">
+        <div class="card border-secondary bg-light mt-4 mb-4">
+            <div class="card-header bg-dark text-white"><strong>Current Status and Flags</strong></div>
+            <div class="card-body">
+    
+            </div>
+        </div>
     </div>
 {% endblock %}
