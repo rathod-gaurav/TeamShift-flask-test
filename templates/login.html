@@ -1,5 +1,10 @@
 {% extends "layout.html" %}
 {% block content %}
+    <div class="col-10 col-sm-8 mr-4 ml-4 alert alert-warning alert-dismissible" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h6>Please Log in with the dummy credentials provided to you!</h6>
+    </div>
+
     <div class="col-10 col-sm-8 col-md-6 content-section">
         <form method="POST" action="">
             {{ form.hidden_tag() }}
