@@ -1,3 +1,20 @@
+/*
+.jumbotron{
+    background-color: #0000ff;
+}
+
+.bg-dark{
+    background-color: #0000ff !important;
+}
+
+.btn-outline-dark:hover{
+    color:#0000ff;
+    background-color:#343a40;
+    border-color:#343a40;
+}
+
+*/
+
 .content-section{
     background: #ffffff;
     padding: 10px 20px;
@@ -11,13 +28,29 @@
     color: khaki;
 }
 
+
+.btn-outline-dark{
+    color:#343a40;
+    background-color:transparent;
+    background-image:none;
+    border-color:#343a40
+}
+
 .btn-outline-dark{
     border-radius: 20px;
 }
 
+
 .btn-lg{
     height: 250px;
     width: inherit;
+    margin-bottom: 100px;
+}
+
+#btnx-text{
+    text-decoration: none;
+    color: inherit;
+    font-size: 20px;
 }
 
 #btn-text{

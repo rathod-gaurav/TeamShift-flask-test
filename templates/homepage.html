@@ -1,21 +1,45 @@
 {% extends "layout.html" %}
-{% block content %}
-    <div class="homepage-button col-10 col-md-4">
+{% block content %}    
+    <div class="col-12 col-sm-12">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('systemConfig') }}">Configuration</a></li>
+            <li class="breadcrumb-item active">Homepage</li>
+            <li class="breadcrumb-item"><a href="{{ url_for('systemTemperature') }}">Temperature</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('systempH') }}">pH</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('systemTDS') }}">EC/TDS</a></li>
+        </ol>
+    </div>
+
+    <div class="homepage-button col-10 col-md-4 mb-4">
         <button type="button" class="btn btn-lg btn-outline-dark btn-block"><a id="btn-text" href="{{ url_for('systemTemperature') }}">Temperature</a></button>
     </div>
-    <div class="homepage-button col-10 col-md-4">
+    <div class="homepage-button col-10 col-md-4 mb-4">
         <button type="button" class="btn btn-lg btn-outline-dark btn-block"><a id="btn-text" href="{{ url_for('systempH') }}">pH</a></button>
     </div>
-    <div class="homepage-button col-10 col-md-4">
+    <div class="homepage-button col-10 col-md-4 mb-4">
         <button type="button" class="btn btn-lg btn-outline-dark btn-block"><a id="btn-text" href="{{ url_for('systemTDS') }}">EC/TDS</a></button>
     </div>
 
-    <div class="col-10 col-sm-10 current-status-and-flags">
-        <div class="card border-secondary bg-light mt-4 mb-4">
-            <div class="card-header bg-dark text-white"><strong>Current Status and Flags</strong></div>
-            <div class="card-body">
-    
+    <div class="col-12 col-sm-12">
+        <div class="card border-dark bg-light mt-4 mb-4">
+            <div class="card-header bg-dark text-white text-right"><strong>System Configuration</strong></div>
+            <div class="card-body table-responsive">
+                {% for table in tables %}
+                    {{ table|safe }}
+                {% endfor %}
             </div>
         </div>
     </div>
+    
+    <div class="col-10 col-sm-10 current-status-and-flags">
+        <div class="card border-secondary bg-light mt-4 mb-4">
+            <div class="card-header bg-dark text-white"><strong>Current Status and Flags</strong></div>
+            <div class="card-body table-responsive">
+                {% for table in tables2 %}
+                    {{ table|safe }}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
 {% endblock %}

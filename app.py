@@ -1,3 +1,4 @@
+from operator import index
 from flask import Flask
 from flask import render_template
 from flask import url_for
@@ -5,6 +6,7 @@ from flask import flash
 from flask import redirect
 
 from forms import LoginForm
+from forms import ConfigForm
 from forms import RegistrationForm
 
 import datetime
@@ -39,6 +41,7 @@ app = Flask(__name__)
 
 app.config['SECRET_KEY'] = 'b017acb0f2dea5916430f103839c0cd6'
 
+
 @app.route('/', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -47,16 +50,124 @@ def login():
             if form.system_code.data == 'SHIFT001':
                 get_ts = datetime.datetime.now().timestamp()
                 readable_ts = time.ctime(get_ts)
+                #ts = time.localtime()
+                #readable_ts_2 = time.strftime("%Y-%m-%d %H:%M:%S", ts)
                 flash(f"You have been logged in to the system at {readable_ts}", 'success')
             return redirect(url_for('homepage'))
         else:
             flash('Login Unsuccessful! Please check your credentials', 'warning')
     return render_template('login.html', title='Login', form=form)
 
+@app.route('/systemConfig', methods=['GET', 'POST']) #methods=['GET', 'POST']
+def systemConfig():
+    #show saved configurations
+    config = pd.read_csv('config/config.csv', sep=',')
+
+    form = ConfigForm()
+    if form.validate_on_submit():
+        config_df = pd.DataFrame(columns=['Growth Phase', 'Start Date', 'End Date',
+                                        'Temp-LowerLimit', 'Temp-UpperLimit', 
+                                        'pH-Lowerlimit', 'pH-UpperLimit', 
+                                        'TDS-LowerLimit', 'TDS-UpperLimit',
+                                        'Light(hrs/day)'])
+
+        phase1 = [form.phase1_name.data, form.phase1_StartDate.data, form.phase1_EndDate.data,
+                form.phase1_T_ll.data, form.phase1_T_ul.data,
+                form.phase1_pH_ll.data, form.phase1_pH_ul.data,
+                form.phase1_tds_ll.data, form.phase1_tds_ul.data,
+                form.phase1_light.data]
+        phase2 = [form.phase2_name.data, form.phase2_StartDate.data, form.phase2_EndDate.data,
+                form.phase2_T_ll.data, form.phase2_T_ul.data,
+                form.phase2_pH_ll.data, form.phase2_pH_ul.data,
+                form.phase2_tds_ll.data, form.phase2_tds_ul.data,
+                form.phase2_light.data]
+        phase3 = [form.phase3_name.data, form.phase3_StartDate.data, form.phase3_EndDate.data,
+                form.phase3_T_ll.data, form.phase3_T_ul.data,
+                form.phase3_pH_ll.data, form.phase3_pH_ul.data,
+                form.phase3_tds_ll.data, form.phase3_tds_ul.data,
+                form.phase3_light.data]
+        
+        config_df = config_df.append({'Growth Phase': phase1[0], 'Start Date': phase1[1], 'End Date' : phase1[2],
+                                    'Temp-LowerLimit' : phase1[3], 'Temp-UpperLimit' : phase1[4], 
+                                    'pH-Lowerlimit' : phase1[5], 'pH-UpperLimit' : phase1[6], 
+                                    'TDS-LowerLimit' : phase1[7], 'TDS-UpperLimit' : phase1[8],
+                                    'Light(hrs/day)' : phase1[9]}, ignore_index=True)
+
+        
+
+        config_df = config_df.append({'Growth Phase': phase2[0], 'Start Date': phase2[1], 'End Date' : phase2[2],
+                                    'Temp-LowerLimit' : phase2[3], 'Temp-UpperLimit' : phase2[4], 
+                                    'pH-Lowerlimit' : phase2[5], 'pH-UpperLimit' : phase2[6], 
+                                    'TDS-LowerLimit' : phase2[7], 'TDS-UpperLimit' : phase2[8],
+                                    'Light(hrs/day)' : phase2[9]}, ignore_index=True)
+        
+        config_df = config_df.append({'Growth Phase': phase3[0], 'Start Date': phase3[1], 'End Date' : phase3[2],
+                                    'Temp-LowerLimit' : phase3[3], 'Temp-UpperLimit' : phase3[4], 
+                                    'pH-Lowerlimit' : phase3[5], 'pH-UpperLimit' : phase3[6], 
+                                    'TDS-LowerLimit' : phase3[7], 'TDS-UpperLimit' : phase3[8],
+                                    'Light(hrs/day)' : phase3[9]}, ignore_index=True)
+        
+
+        #save configuration settings into a .csv file
+        config_df.to_csv("config/config.csv", index=False)
+
+        get_ts = datetime.datetime.now().timestamp()
+        readable_ts = time.ctime(get_ts)
+        flash(f"System Configured at {readable_ts}", "success")
+
+        return redirect(url_for('homepage'))
+    return render_template('config.html', title='Config.', form=form, 
+                            tables = [config.to_html(classes = 'flags table')])
 
 @app.route('/systemHomepage')
 def homepage():
-    return render_template('homepage.html', title='Homepage')
+    config = pd.read_csv('config/config.csv', sep=',')
+
+    #update homepage flags
+    homepage_flags = pd.read_csv('files/homepage_flags.csv', sep=',')
+
+    ts = time.localtime()
+    readable_ts_2 = time.strftime("%Y-%m-%d %H:%M:%S", ts)
+
+    for i in range(len(config.index)):
+        if(readable_ts_2 == config.loc[i][1]):
+            message = f"Current Growth Phase : {config.loc[i][0]}"
+            if(homepage_flags.empty):
+                homepage_flags = homepage_flags.append({'Timestamp' : config.loc[i][1], 'Message' : message})
+            elif(message in homepage_flags['Message']):
+                break
+            else:
+                homepage_flags = homepage_flags.append({'Timestamp' : config.loc[i][1], 'Message' : message})
+        elif(readable_ts_2 == config.loc[i][2]):
+            message = f"Change in Plant's Growth Phase : {config.loc[i][0]} => {config.loc[i+1][0]}"
+            if(homepage_flags.empty):
+                homepage_flags = homepage_flags.append({'Timestamp' : config.loc[i][2], 'Message' : message})
+            if(message in homepage_flags['Message']):
+                break
+            else:
+                homepage_flags = homepage_flags.append({'Timestamp' : config.loc[i][2], 'Message' : message})
+    
+
+    #update current status    
+    current_status = pd.read_csv('files/current_status.csv', sep=',')
+
+    for i in range(len(config.index)):
+        if(readable_ts_2 == config.loc[i][1]):
+            if(current_status.empty):
+                current_status = current_status.append(config.loc[i])
+                current_status.to_csv("files/current_status.csv", index=False)
+            elif(config.loc[i][0] in current_status.iloc[0][0]):
+                break
+            else:
+                current_status = current_status.append(config.loc[i])
+                current_status.to_csv("files/current_status.csv", index=False)
+
+
+    return render_template('homepage.html', title='Homepage',
+                        #configuration table
+                        tables = [config.to_html(classes = 'flags table')],
+                        #homepage_flags_&_flags_table
+                        tables2 = [homepage_flags.to_html(classes = 'flags table')])
 
 @app.route('/systemTemperature')
 def systemTemperature():

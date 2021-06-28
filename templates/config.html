@@ -1,0 +1,572 @@
+{% extends "layout.html" %}
+{% block content %}
+
+    <div class="col-12 col-sm-12">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active">Configuration</li>
+            <li class="breadcrumb-item"><a href="{{ url_for('homepage') }}">Back</a></li>
+        </ol>
+    </div>
+
+    <div class="col-12 col-sm-12">
+        <h4 class="text-right">System Configuration Settings</h4>
+    </div>
+    <div class="col-12 col-sm-12 blockquote-footer text-right">
+        <cite class="text-right" title="Source Title" style="color: #dd1b16;">These details should be filled only once! Filling it more than once will clear and <strong>replace</strong> the previous entered details.</cite>
+    </div>
+    
+    <div class="col-12 col-sm-12 mb-4">
+        <div class="card mt-4 mb-4">
+            <div class="card-header text-white table-responsive" style="background-color:#e9ecef;">
+                <table class="table table-striped">
+                    <thead class="thead-dark text-center">
+                        <tr>
+                            <th>Growth Phase</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th colspan="2">Temperature (°Celcius)</th>
+                            <th colspan="2">pH</th>
+                            <th colspan="2">EC/TDS (ms/cm)</th>
+                            <th>Light (hrs/day)</th>
+                        </tr>
+                        <tr>
+                            <th>&nbsp;</th>
+                            <th>&nbsp;</th>
+                            <th>&nbsp;</th>
+                            <th>Lowerlimit</th>
+                            <th>UpperLimit</th>
+                            <th>Lowerlimit</th>
+                            <th>UpperLimit</th>
+                            <th>Lowerlimit</th>
+                            <th>UpperLimit</th>
+                            <th>&nbsp;</th>
+                        </tr>
+                    </thead>
+
+                    <form action="" method="POST">
+                        {{ form.hidden_tag() }}
+                        <tbody class="text-center">
+                            <tr> <!--Phase 1-->
+                                <td>
+                                    <fieldset class="form-group">
+                                        <div class="form-group">
+                                            {% if form.phase1_name.errors %}    
+                                                {{ form.phase1_name(class="form-control form-control-block is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.phase1_name.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ form.phase1_name(class="form-control form-control-block bg-transparent", placeholder="I") }}
+                                            {% endif %}
+                                        </div>
+                                    </fieldset>
+                                </td>
+                                <td>
+                                    <fieldset class="form-group">
+                                        <div class="form-group">
+                                            {% if form.phase1_StartDate.errors %}    
+                                                {{ form.phase1_StartDate(class="form-control form-control-block is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.phase1_StartDate.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ form.phase1_StartDate(class="form-control  form-control-block bg-transparent", type="datetime-local", placeholder="StartDate") }}
+                                            {% endif %}
+                                        </div>
+                                    </fieldset>
+                                </td>
+                                <td>
+                                    <fieldset class="form-group">
+                                        <div class="form-group">
+                                            {% if form.phase1_EndDate.errors %}    
+                                                {{ form.phase1_EndDate(class="form-control form-control-block is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.phase1_EndDate.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ form.phase1_EndDate(class="form-control form-control-block bg-transparent", type="datetime-local", placeholder="EndDate") }}
+                                            {% endif %}
+                                        </div>
+                                    </fieldset>
+                                </td>
+                                <td>
+                                    <fieldset class="form-group">
+                                        <div class="form-group">
+                                            {% if form.phase1_T_ll.errors %}    
+                                                {{ form.phase1_T_ll(class="form-control form-control-block is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.phase1_T_ll.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ form.phase1_T_ll(class="form-control form-control-block bg-transparent",type="number", step="0.01", placeholder="0.00") }}
+                                            {% endif %}
+                                        </div>
+                                    </fieldset>
+                                </td>
+                                <td>
+                                    <fieldset class="form-group">
+                                        <div class="form-group">
+                                            {% if form.phase1_T_ul.errors %}    
+                                                {{ form.phase1_T_ul(class="form-control form-control-block is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.phase1_T_ul.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ form.phase1_T_ul(class="form-control form-control-block bg-transparent",type="number", step="0.01", placeholder="0.00") }}
+                                            {% endif %}
+                                        </div>
+                                    </fieldset>
+                                </td>
+                                <td>
+                                    <fieldset class="form-group">
+                                        <div class="form-group">
+                                            {% if form.phase1_pH_ll.errors %}    
+                                                {{ form.phase1_pH_ll(class="form-control form-control-block is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.phase1_pH_ll.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ form.phase1_pH_ll(class="form-control form-control-block bg-transparent",type="number", step="0.01", placeholder="0.00") }}
+                                            {% endif %}
+                                        </div>
+                                    </fieldset>
+                                </td>
+                                <td>
+                                    <fieldset class="form-group">
+                                        <div class="form-group">
+                                            {% if form.phase1_pH_ul.errors %}    
+                                                {{ form.phase1_pH_ul(class="form-control form-control-block is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.phase1_pH_ul.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ form.phase1_pH_ul(class="form-control form-control-block bg-transparent",type="number", step="0.01", placeholder="0.00") }}
+                                            {% endif %}
+                                        </div>
+                                    </fieldset>
+                                </td>
+                                <td>
+                                    <fieldset class="form-group">
+                                        <div class="form-group">
+                                            {% if form.phase1_tds_ll.errors %}    
+                                                {{ form.phase1_tds_ll(class="form-control form-control-block is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.phase1_tds_ll.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ form.phase1_tds_ll(class="form-control form-control-block bg-transparent",type="number", step="0.01", placeholder="0.00") }}
+                                            {% endif %}
+                                        </div>
+                                    </fieldset>
+                                </td>
+                                <td>
+                                    <fieldset class="form-group">
+                                        <div class="form-group">
+                                            {% if form.phase1_tds_ul.errors %}    
+                                                {{ form.phase1_tds_ul(class="form-control form-control-block is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.phase1_tds_ul.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ form.phase1_tds_ul(class="form-control form-control-block bg-transparent",type="number", step="0.01", placeholder="0.00") }}
+                                            {% endif %}
+                                        </div>
+                                    </fieldset>
+                                </td>
+                                <td>
+                                    <fieldset class="form-group">
+                                        <div class="form-group">
+                                            {% if form.phase1_light.errors %}    
+                                                {{ form.phase1_light(class="form-control form-control-block is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.phase1_light.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ form.phase1_light(class="form-control form-control-block bg-transparent",type="number", step="0.01", placeholder="hrs/day") }}
+                                            {% endif %}
+                                        </div>
+                                    </fieldset>
+                                </td>
+                            </tr>
+
+                            <tr> <!--Phase 2-->
+                                <td>
+                                    <fieldset class="form-group">
+                                        <div class="form-group">
+                                            {% if form.phase2_name.errors %}    
+                                                {{ form.phase2_name(class="form-control form-control-block is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.phase2_name.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ form.phase2_name(class="form-control form-control-block bg-transparent", placeholder="II") }}
+                                            {% endif %}
+                                        </div>
+                                    </fieldset>
+                                </td>
+                                <td>
+                                    <fieldset class="form-group">
+                                        <div class="form-group">
+                                            {% if form.phase2_StartDate.errors %}    
+                                                {{ form.phase2_StartDate(class="form-control form-control-block is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.phase2_StartDate.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ form.phase2_StartDate(class="form-control  form-control-block bg-transparent", type="datetime-local", placeholder="StartDate") }}
+                                            {% endif %}
+                                        </div>
+                                    </fieldset>
+                                </td>
+                                <td>
+                                    <fieldset class="form-group">
+                                        <div class="form-group">
+                                            {% if form.phase2_EndDate.errors %}    
+                                                {{ form.phase2_EndDate(class="form-control form-control-block is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.phase2_EndDate.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ form.phase2_EndDate(class="form-control form-control-block bg-transparent", type="datetime-local", placeholder="EndDate") }}
+                                            {% endif %}
+                                        </div>
+                                    </fieldset>
+                                </td>
+                                <td>
+                                    <fieldset class="form-group">
+                                        <div class="form-group">
+                                            {% if form.phase2_T_ll.errors %}    
+                                                {{ form.phase2_T_ll(class="form-control form-control-block is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.phase2_T_ll.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ form.phase2_T_ll(class="form-control form-control-block bg-transparent",type="number", step="0.01", placeholder="0.00") }}
+                                            {% endif %}
+                                        </div>
+                                    </fieldset>
+                                </td>
+                                <td>
+                                    <fieldset class="form-group">
+                                        <div class="form-group">
+                                            {% if form.phase2_T_ul.errors %}    
+                                                {{ form.phase2_T_ul(class="form-control form-control-block is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.phase2_T_ul.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ form.phase2_T_ul(class="form-control form-control-block bg-transparent",type="number", step="0.01", placeholder="0.00") }}
+                                            {% endif %}
+                                        </div>
+                                    </fieldset>
+                                </td>
+                                <td>
+                                    <fieldset class="form-group">
+                                        <div class="form-group">
+                                            {% if form.phase2_pH_ll.errors %}    
+                                                {{ form.phase2_pH_ll(class="form-control form-control-block is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.phase2_pH_ll.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ form.phase2_pH_ll(class="form-control form-control-block bg-transparent",type="number", step="0.01", placeholder="0.00") }}
+                                            {% endif %}
+                                        </div>
+                                    </fieldset>
+                                </td>
+                                <td>
+                                    <fieldset class="form-group">
+                                        <div class="form-group">
+                                            {% if form.phase2_pH_ul.errors %}    
+                                                {{ form.phase2_pH_ul(class="form-control form-control-block is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.phase2_pH_ul.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ form.phase2_pH_ul(class="form-control form-control-block bg-transparent",type="number", step="0.01", placeholder="0.00") }}
+                                            {% endif %}
+                                        </div>
+                                    </fieldset>
+                                </td>
+                                <td>
+                                    <fieldset class="form-group">
+                                        <div class="form-group">
+                                            {% if form.phase2_tds_ll.errors %}    
+                                                {{ form.phase2_tds_ll(class="form-control form-control-block is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.phase2_tds_ll.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ form.phase2_tds_ll(class="form-control form-control-block bg-transparent",type="number", step="0.01", placeholder="0.00") }}
+                                            {% endif %}
+                                        </div>
+                                    </fieldset>
+                                </td>
+                                <td>
+                                    <fieldset class="form-group">
+                                        <div class="form-group">
+                                            {% if form.phase2_tds_ul.errors %}    
+                                                {{ form.phase2_tds_ul(class="form-control form-control-block is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.phase2_tds_ul.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ form.phase2_tds_ul(class="form-control form-control-block bg-transparent",type="number", step="0.01", placeholder="0.00") }}
+                                            {% endif %}
+                                        </div>
+                                    </fieldset>
+                                </td>
+                                <td>
+                                    <fieldset class="form-group">
+                                        <div class="form-group">
+                                            {% if form.phase2_light.errors %}    
+                                                {{ form.phase2_light(class="form-control form-control-block is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.phase2_light.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ form.phase2_light(class="form-control form-control-block bg-transparent",type="number", step="0.01", placeholder="hrs/day") }}
+                                            {% endif %}
+                                        </div>
+                                    </fieldset>
+                                </td>
+                            </tr>
+
+                            <tr> <!--Phase 3-->
+                                <td>
+                                    <fieldset class="form-group">
+                                        <div class="form-group">
+                                            {% if form.phase3_name.errors %}    
+                                                {{ form.phase3_name(class="form-control form-control-block is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.phase3_name.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ form.phase3_name(class="form-control form-control-block bg-transparent", placeholder="III") }}
+                                            {% endif %}
+                                        </div>
+                                    </fieldset>
+                                </td>
+                                <td>
+                                    <fieldset class="form-group">
+                                        <div class="form-group">
+                                            {% if form.phase3_StartDate.errors %}    
+                                                {{ form.phase3_StartDate(class="form-control form-control-block is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.phase3_StartDate.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ form.phase3_StartDate(class="form-control  form-control-block bg-transparent", type="datetime-local", placeholder="StartDate") }}
+                                            {% endif %}
+                                        </div>
+                                    </fieldset>
+                                </td>
+                                <td>
+                                    <fieldset class="form-group">
+                                        <div class="form-group">
+                                            {% if form.phase3_EndDate.errors %}    
+                                                {{ form.phase3_EndDate(class="form-control form-control-block is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.phase3_EndDate.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ form.phase3_EndDate(class="form-control form-control-block bg-transparent", type="datetime-local", placeholder="EndDate") }}
+                                            {% endif %}
+                                        </div>
+                                    </fieldset>
+                                </td>
+                                <td>
+                                    <fieldset class="form-group">
+                                        <div class="form-group">
+                                            {% if form.phase3_T_ll.errors %}    
+                                                {{ form.phase3_T_ll(class="form-control form-control-block is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.phase3_T_ll.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ form.phase3_T_ll(class="form-control form-control-block bg-transparent",type="number", step="0.01", placeholder="0.00") }}
+                                            {% endif %}
+                                        </div>
+                                    </fieldset>
+                                </td>
+                                <td>
+                                    <fieldset class="form-group">
+                                        <div class="form-group">
+                                            {% if form.phase3_T_ul.errors %}    
+                                                {{ form.phase3_T_ul(class="form-control form-control-block is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.phase3_T_ul.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ form.phase3_T_ul(class="form-control form-control-block bg-transparent",type="number", step="0.01", placeholder="0.00") }}
+                                            {% endif %}
+                                        </div>
+                                    </fieldset>
+                                </td>
+                                <td>
+                                    <fieldset class="form-group">
+                                        <div class="form-group">
+                                            {% if form.phase3_pH_ll.errors %}    
+                                                {{ form.phase3_pH_ll(class="form-control form-control-block is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.phase3_pH_ll.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ form.phase3_pH_ll(class="form-control form-control-block bg-transparent",type="number", step="0.01", placeholder="0.00") }}
+                                            {% endif %}
+                                        </div>
+                                    </fieldset>
+                                </td>
+                                <td>
+                                    <fieldset class="form-group">
+                                        <div class="form-group">
+                                            {% if form.phase3_pH_ul.errors %}    
+                                                {{ form.phase3_pH_ul(class="form-control form-control-block is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.phase3_pH_ul.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ form.phase3_pH_ul(class="form-control form-control-block bg-transparent",type="number", step="0.01", placeholder="0.00") }}
+                                            {% endif %}
+                                        </div>
+                                    </fieldset>
+                                </td>
+                                <td>
+                                    <fieldset class="form-group">
+                                        <div class="form-group">
+                                            {% if form.phase3_tds_ll.errors %}    
+                                                {{ form.phase3_tds_ll(class="form-control form-control-block is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.phase3_tds_ll.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ form.phase3_tds_ll(class="form-control form-control-block bg-transparent",type="number", step="0.01", placeholder="0.00") }}
+                                            {% endif %}
+                                        </div>
+                                    </fieldset>
+                                </td>
+                                <td>
+                                    <fieldset class="form-group">
+                                        <div class="form-group">
+                                            {% if form.phase3_tds_ul.errors %}    
+                                                {{ form.phase3_tds_ul(class="form-control form-control-block is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.phase3_tds_ul.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ form.phase3_tds_ul(class="form-control form-control-block bg-transparent",type="number", step="0.01", placeholder="0.00") }}
+                                            {% endif %}
+                                        </div>
+                                    </fieldset>
+                                </td>
+                                <td>
+                                    <fieldset class="form-group">
+                                        <div class="form-group">
+                                            {% if form.phase3_light.errors %}    
+                                                {{ form.phase3_light(class="form-control form-control-block is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.phase3_light.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ form.phase3_light(class="form-control form-control-block bg-transparent",type="number", step="0.01", placeholder="hrs/day") }}
+                                            {% endif %}
+                                        </div>
+                                    </fieldset>
+                                </td>
+                            </tr>
+
+                            <tr> <!--Save & Submit-->
+                                <td>
+                                    <div class="form-group text-center pt-2">
+                                        {{ form.submit(class="btn btn-block btn-outline-success") }}
+                                    </div>
+                                </td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                            </tr>
+                        </tbody>
+                        
+                    </form>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-12">
+        <div class="card border-dark bg-light mt-4 mb-4">
+            <div class="card-header bg-dark text-white text-left"><strong>Saved Configuration</strong></div>
+            <div class="card-body table-responsive">
+                {% for table in tables %}
+                    {{ table|safe }}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
