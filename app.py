@@ -22,6 +22,7 @@ import csv
 
 import pyrebase
 
+
 config = {
     "apiKey": "AIzaSyDYQDUyk3lN5Q9qoIc70iym3pQ-2_z-1Pc",
     "authDomain": "shift-ui-f9cec.firebaseapp.com",
@@ -61,7 +62,7 @@ def login():
 @app.route('/systemConfig', methods=['GET', 'POST']) #methods=['GET', 'POST']
 def systemConfig():
     #show saved configurations
-    config = pd.read_csv('config/config.csv', sep=',')
+    config = pd.read_csv('/var/www/beta/config/config.csv', sep=',')
 
     form = ConfigForm()
     if form.validate_on_submit():
