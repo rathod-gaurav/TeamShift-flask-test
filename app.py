@@ -12,6 +12,7 @@ from forms import RegistrationForm
 import datetime
 import time
 
+
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
@@ -38,8 +39,23 @@ firebase = pyrebase.initialize_app(config)
 storage = firebase.storage()
 
 
+from flask_mail import Mail, Message
+
 app = Flask(__name__)
 
+#flask mail config
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USERNAME'] = 'noreply.teamshift@gmail.com'
+app.config['MAIL_PASSWORD'] = 'ufmwhcggfkkqbbsu'
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
+#app.config['']
+#app.config['']
+
+mail = Mail(app)
+
+#secret key for flask-forms
 app.config['SECRET_KEY'] = 'b017acb0f2dea5916430f103839c0cd6'
 
 
@@ -283,6 +299,18 @@ def systempH():
 @app.route('/systemTDS')
 def systemTDS():
     return render_template('systemtds.html', title='EC/TDS')
+
+@app.route('/alertmessage')
+def alert():
+    #code for sending email messages
+    get_ts = datetime.datetime.now().timestamp()
+    readable_ts = time.ctime(get_ts)
+    
+    msg = Message('SHIFT001 System Update', sender = 'noreply.teamshift@gmail.com', recipients = ['rathod.gauravvinod@gmail.com',
+                                                                            '200010001@iitb.ac.in',
+                                                                            '200010025@iitb.ac.in'])
+    msg.body = f"This email is generated at - \n {readable_ts}. \n This is a confirmation email. \n If you are receiving this email, then team SHIFT alert system is working fine! \n Please donot reply to this email. \n Regards, \n Team SHIFT"
+    mail.send(msg)
 
 
 if __name__ == '__main__':
