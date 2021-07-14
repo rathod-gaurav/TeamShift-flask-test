@@ -11,6 +11,8 @@ from forms import RegistrationForm
 
 import datetime
 import time
+import pytz
+tz = pytz.timezone('Asia/Kolkata')
 
 
 import numpy as np
@@ -20,6 +22,7 @@ import matplotlib.pyplot as plt
 
 import pandas as pd
 import csv
+import os
 
 import pyrebase
 
@@ -59,26 +62,45 @@ mail = Mail(app)
 app.config['SECRET_KEY'] = 'b017acb0f2dea5916430f103839c0cd6'
 
 
+#defining base route for reading/writing into files
+document_root = '/var/www/beta/'
+#document_root = ''
+
+
 @app.route('/', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
         if form.email.data == 'admin@teamshift.org' and form.password.data == 'TeamSHIFT2021' and form.system_code.data == 'SHIFT001':
             if form.system_code.data == 'SHIFT001':
-                get_ts = datetime.datetime.now().timestamp()
+                tz = pytz.timezone('Asia/Kolkata')
+                get_ts = datetime.now().timestamp()
                 readable_ts = time.ctime(get_ts)
                 #ts = time.localtime()
                 #readable_ts_2 = time.strftime("%Y-%m-%d %H:%M:%S", ts)
+
+                #sending email that admin has logged in to the system
+                msg = Message('SHIFT001 System Login', sender = 'noreply.teamshift@gmail.com', recipients = ['rathod.gauravvinod@gmail.com',
+                                                                                                            '200010001@iitb.ac.in',
+                                                                                                            '200010025@iitb.ac.in'])
+                msg.body = f"This email is generated at - \n {readable_ts}. \n Admin User has logged in to the system at {readable_ts}. \n Please donot reply to this email. \n Regards, \n Team SHIFT"
+                mail.send(msg)
+
                 flash(f"You have been logged in to the system at {readable_ts}", 'success')
             return redirect(url_for('homepage'))
         else:
             flash('Login Unsuccessful! Please check your credentials', 'warning')
     return render_template('login.html', title='Login', form=form)
 
+@app.route('/testing', methods=['GET'])
+def testing():
+    files = os.listdir('./')
+    return str(files)
+
 @app.route('/systemConfig', methods=['GET', 'POST']) #methods=['GET', 'POST']
 def systemConfig():
     #show saved configurations
-    config = pd.read_csv('config.csv', sep=',')
+    config = pd.read_csv(document_root + 'config/config.csv', sep=',')
 
     form = ConfigForm()
     if form.validate_on_submit():
@@ -126,9 +148,9 @@ def systemConfig():
         
 
         #save configuration settings into a .csv file
-        config_df.to_csv("config/config.csv", index=False)
+        config_df.to_csv(document_root + 'config/config.csv', index=False)
 
-        get_ts = datetime.datetime.now().timestamp()
+        get_ts = datetime.now().timestamp()
         readable_ts = time.ctime(get_ts)
         flash(f"System Configured at {readable_ts}", "success")
 
@@ -138,10 +160,10 @@ def systemConfig():
 
 @app.route('/systemHomepage')
 def homepage():
-    config = pd.read_csv('config/config.csv', sep=',')
+    config = pd.read_csv(document_root + 'config/config.csv', sep=',')
 
     #update homepage flags
-    homepage_flags = pd.read_csv('files/homepage_flags.csv', sep=',')
+    homepage_flags = pd.read_csv(document_root + 'files/homepage_flags.csv', sep=',')
 
     ts = time.localtime()
     readable_ts_2 = time.strftime("%Y-%m-%d %H:%M:%S", ts)
@@ -166,18 +188,18 @@ def homepage():
     
 
     #update current status    
-    current_status = pd.read_csv('files/current_status.csv', sep=',')
+    current_status = pd.read_csv(document_root + 'files/current_status.csv', sep=',')
 
     for i in range(len(config.index)):
         if(readable_ts_2 == config.loc[i][1]):
             if(current_status.empty):
                 current_status = current_status.append(config.loc[i])
-                current_status.to_csv("files/current_status.csv", index=False)
+                current_status.to_csv(document_root + 'files/current_status.csv', index=False)
             elif(config.loc[i][0] in current_status.iloc[0][0]):
                 break
             else:
                 current_status = current_status.append(config.loc[i])
-                current_status.to_csv("files/current_status.csv", index=False)
+                current_status.to_csv(document_root + 'files/current_status.csv', index=False)
 
 
     return render_template('homepage.html', title='Homepage',
@@ -191,14 +213,14 @@ def systemTemperature():
 
     # storage.child("data/sachin.txt").put("temp.txt")
 
-    start_time = time.time()
+    #start_time = time.time()
 
     #download file from firebase
-    storage.child("data/sachin.txt").download('data/sachin.txt', 'temp.txt')
-    time_Stage1 = time.time()
+    #storage.child("data/sachin.txt").download('data/sachin.txt', 'temp.txt')
+    #time_Stage1 = time.time()
 
     #initializing an array to plot the graph
-    data1 = np.loadtxt("temp.txt", dtype=int)
+    data1 = np.loadtxt(document_root + 'test.txt', delimiter=',')
     #if number of entries in data1 < 100
     if(np.size(data1) < 100):
         data2 = data1
@@ -217,7 +239,7 @@ def systemTemperature():
     var2 = 40 #lowerlimit
 
     #find number of entries in the temp_discrepancies.csv file
-    file = open('temp_discrepancies.csv')
+    file = open(document_root + 'temp_discrepancies.csv')
     reader = csv.reader(file)
     disc_num = len(list(reader))
 
@@ -226,26 +248,26 @@ def systemTemperature():
         if(data2[reading] >= var1):
             plt.plot(data3[reading], data2[reading], 'ro')
             #append message with timestamp that reading exceeded upper limit to another array
-            get_ts = datetime.datetime.now().timestamp()
+            get_ts = datetime.now(tz).timestamp()
             readable_ts = time.ctime(get_ts)
             message = "Temperature Exceeded above Upper Limit."
             df = pd.DataFrame({'timestamp' : readable_ts, 'message' : message}, index=[disc_num])
             disc_num += 1
-            df.to_csv('temp_discrepancies.csv', mode='a', header=False)
+            df.to_csv(document_root + 'temp_discrepancies.csv', mode='a', header=False)
             #code here
         elif(data2[reading] <= var2):
             plt.plot(data3[reading], data2[reading], 'b.')
             #append message with time stamp that reading went below lowerlimit to another array
-            get_ts = datetime.datetime.now().timestamp()
+            get_ts = datetime.now(tz).timestamp()
             readable_ts = time.ctime(get_ts)
             message = "System running low on Temperature."
             df = pd.DataFrame({'timestamp' : readable_ts, 'message' : message}, index=[disc_num])
             disc_num += 1
-            df.to_csv('temp_discrepancies.csv', mode='a', header=False)
+            df.to_csv(document_root + 'temp_discrepancies.csv', mode='a', header=False)
             #code here
     
     #push the discrepancy dataframe csv to firebase
-    storage.child("temp/temp_discrepancies.csv").put("temp_discrepancies.csv")
+    storage.child("temp/temp_discrepancies.csv").put(document_root + 'temp_discrepancies.csv')
     #get link to this file from firebase
     temp_disc_csv_link = storage.child("temp/temp_discrepancies.csv").get_url(None)
 
@@ -262,10 +284,10 @@ def systemTemperature():
     plt.annotate('Current Reading', xy = (data3[-1], data2[-1]))
 
     #saving the plot as a png file
-    plt.savefig('temp_plot.png')
+    plt.savefig(document_root + 'temp_plot.png')
 
     #push the png image to firebase at a convenient location
-    storage.child("images/temp.png").put("temp_plot.png")
+    storage.child("images/temp.png").put(document_root + 'temp_plot.png')
 
     #finding other details
     average = np.mean(data1) #average of all readings
@@ -277,17 +299,17 @@ def systemTemperature():
     plot_link = storage.child("images/temp.png").get_url(None)
 
     #miscellaneous
-    end_time = time.time()
-    time_delay_end = end_time - start_time
-    time_delay_stage1 = end_time - time_Stage1
+    #end_time = time.time()
+    #time_delay_end = end_time - start_time
+    #time_delay_stage1 = end_time - time_Stage1
 
     #reading dataframe table for discrepancies
-    discrepancies = pd.read_csv(temp_disc_csv_link, sep=',', index_col='Index')
+    discrepancies = pd.read_csv(document_root + 'temp_discrepancies.csv', sep=',', index_col='Index')
 
     return render_template('systemTemperature.html',
                             title='Temperature', temp=plot_link, t_avg=average,
                             t_count=size_x, t_count_y=size_y, t_curr=current,
-                            delay_end=time_delay_end, delay_stage1=time_delay_stage1,
+                            #delay_end=time_delay_end, delay_stage1=time_delay_stage1,
                             #flags table
                             tables = [discrepancies.to_html(classes = 'flags table')],
                             )
@@ -303,7 +325,8 @@ def systemTDS():
 @app.route('/alertmessage')
 def alert():
     #code for sending email messages
-    get_ts = datetime.datetime.now().timestamp()
+    tz = pytz.timezone('Asia/Kolkata')
+    get_ts = datetime.now(tz).timestamp()
     readable_ts = time.ctime(get_ts)
     
     msg = Message('SHIFT001 System Update', sender = 'noreply.teamshift@gmail.com', recipients = ['rathod.gauravvinod@gmail.com',
