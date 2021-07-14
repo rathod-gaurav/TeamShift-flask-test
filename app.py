@@ -74,7 +74,7 @@ def login():
         if form.email.data == 'admin@teamshift.org' and form.password.data == 'TeamSHIFT2021' and form.system_code.data == 'SHIFT001':
             if form.system_code.data == 'SHIFT001':
                 tz = pytz.timezone('Asia/Kolkata')
-                get_ts = datetime.now().timestamp()
+                get_ts = datetime.datetime.now(tz).timestamp()
                 readable_ts = time.ctime(get_ts)
                 #ts = time.localtime()
                 #readable_ts_2 = time.strftime("%Y-%m-%d %H:%M:%S", ts)
@@ -150,7 +150,7 @@ def systemConfig():
         #save configuration settings into a .csv file
         config_df.to_csv(document_root + 'config/config.csv', index=False)
 
-        get_ts = datetime.now().timestamp()
+        get_ts = datetime.datetime.now(tz).timestamp()
         readable_ts = time.ctime(get_ts)
         flash(f"System Configured at {readable_ts}", "success")
 
@@ -248,7 +248,7 @@ def systemTemperature():
         if(data2[reading] >= var1):
             plt.plot(data3[reading], data2[reading], 'ro')
             #append message with timestamp that reading exceeded upper limit to another array
-            get_ts = datetime.now(tz).timestamp()
+            get_ts = datetime.datetime.now(tz).timestamp()
             readable_ts = time.ctime(get_ts)
             message = "Temperature Exceeded above Upper Limit."
             df = pd.DataFrame({'timestamp' : readable_ts, 'message' : message}, index=[disc_num])
@@ -258,7 +258,7 @@ def systemTemperature():
         elif(data2[reading] <= var2):
             plt.plot(data3[reading], data2[reading], 'b.')
             #append message with time stamp that reading went below lowerlimit to another array
-            get_ts = datetime.now(tz).timestamp()
+            get_ts = datetime.datetime.now(tz).timestamp()
             readable_ts = time.ctime(get_ts)
             message = "System running low on Temperature."
             df = pd.DataFrame({'timestamp' : readable_ts, 'message' : message}, index=[disc_num])
@@ -326,7 +326,7 @@ def systemTDS():
 def alert():
     #code for sending email messages
     tz = pytz.timezone('Asia/Kolkata')
-    get_ts = datetime.now(tz).timestamp()
+    get_ts = datetime.datetime.now(tz).timestamp()
     readable_ts = time.ctime(get_ts)
     
     msg = Message('SHIFT001 System Update', sender = 'noreply.teamshift@gmail.com', recipients = ['rathod.gauravvinod@gmail.com',
