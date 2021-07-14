@@ -63,8 +63,8 @@ app.config['SECRET_KEY'] = 'b017acb0f2dea5916430f103839c0cd6'
 
 
 #defining base route for reading/writing into files
-document_root = '/var/www/beta/'
-#document_root = ''
+#document_root = '/var/www/beta/'
+document_root = ''
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -81,8 +81,10 @@ def login():
 
                 #sending email that admin has logged in to the system
                 msg = Message('SHIFT001 System Login', sender = 'noreply.teamshift@gmail.com', recipients = ['rathod.gauravvinod@gmail.com',
-                                                                                                            '200010001@iitb.ac.in',
-                                                                                                            '200010025@iitb.ac.in'])
+                                                                                                            '200010025@iitb.ac.in',
+                                                                                                            'abhishekpm95202@gmail.com',
+                                                                                                            'mlalwani0927@gmail.com',
+                                                                                                            'nikhilyadav.07n@gmail.com'])
                 msg.body = f"This email is generated at - \n {readable_ts}. \n Admin User has logged in to the system at {readable_ts}. \n Please donot reply to this email. \n Regards, \n Team SHIFT"
                 mail.send(msg)
 
@@ -335,6 +337,12 @@ def alert():
     msg.body = f"This email is generated at - \n {readable_ts}. \n This is a confirmation email. \n If you are receiving this email, then team SHIFT alert system is working fine! \n Please donot reply to this email. \n Regards, \n Team SHIFT"
     mail.send(msg)
 
+@app.route('/sendData/<temp>/<ph>/<tds>')
+def sendData(temp, ph, tds):
+    with open('temperature.csv', 'a') as f:
+        f.write(temp + ',' + ph + ',' + tds + "\n")
+
+    return "Data Saved"
 
 if __name__ == '__main__':
     app.run(debug=True)
