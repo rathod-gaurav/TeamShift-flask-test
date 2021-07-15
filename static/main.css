@@ -7,13 +7,15 @@
     background-color: #0000ff !important;
 }
 
+*/
+
 .btn-outline-dark:hover{
     color:#0000ff;
-    background-color:#343a40;
-    border-color:#343a40;
+    background-color:#8a83f2;
+    border-color:#8a83f2;
 }
 
-*/
+
 
 .content-section{
     background: #ffffff;
@@ -87,6 +89,6 @@ tr:nth-child(even){
 }
 
 tr:hover{
-    background-color: #ffff99;
+    background-color: #8a83f2;
     cursor: pointer;
 }

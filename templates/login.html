@@ -1,11 +1,24 @@
 {% extends "layout.html" %}
 {% block content %}
-    <div class="col-10 col-sm-8 mr-4 ml-4 alert alert-warning alert-dismissible" role="alert">
+    <div class="col-10 col-sm-10 mr-4 ml-4 alert alert-warning alert-dismissible" role="alert">
         <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
         <h6>Please Log in with the dummy credentials provided to you!</h6>
     </div>
 
-    <div class="col-10 col-sm-8 col-md-6 content-section">
+    <div class="col-10 col-sm-10 col-md-8 order-md-left border-bottom">
+        <h5 class="text-left">Hydroponics</h5>
+        <hr>
+        <img src="../static/hydroP2.gif" alt="#" height="200" class="img-fluid mt-3 mb-4 ml-3 pl-3">
+        <img src="../static/hydroP3.gif" alt="#" width="400" class="img-fluid mt-3 mb-4 mr-3">
+        <blockquote class="blockquote">
+            <p class="mb-0 text-left">Hydroponics, a modern farming technology uses nutrient infused water to nurture the plants. 
+                It can give higher yields, as inputs are continuously monitored and optimised, 
+                and better quality yields due to continuous nutrition tracking and zero use of insecticides/pesticides.
+            </p>
+        </blockquote>
+    </div>
+
+    <div class="col-10 col-sm-8 col-md-4 order-md-right content-section mt-3">
         <form method="POST" action="">
             {{ form.hidden_tag() }}
             <fieldset class="form-group">
@@ -57,5 +70,29 @@
                 {{ form.submit(class="btn btn-outline-info") }}
             </div>
         </form>
+    </div>
+
+    <div class="col-12 col-sm-12 text-left mb-4 pb-4 border-bottom">
+        <br>
+        <div class="d-none d-md-block">
+            <strong> “Precision farming” </strong>or<strong> “Technology enabled approach to farming” </strong>uses data of the system continuously 
+            to analyse and provide information on crop growth patterns, and give actionable timely insights 
+            to prevent losses and optimize productivity.
+            <br><br>
+        </div>
+        
+        <h5 class="text-right border-bottom pb-1">Our Motivation</h5>
+        <div class="d-none d-md-block">
+            Hydroponics uses 10% of the water required as compared to traditional agriculture.
+            Also, fertile, arable land is in scarce supply especially as the population is expected to increase by 50% 
+            in the next 20 years.
+            <br><br>
+        </div>
+        By eliminating the need for land, hydroponics can serve as a major food source in coming years, 
+        as it gives scalable produce in less amount of time.
+        But It also requisites precision techniques and knowledge about Hydroponics which is not achievable for a common man. 
+        <br><br>
+        So, we aim at developing a fully autonomous system capable of managing the parameters accurately, with user-friendly insights. 
+        Hence, the goal is to increase productivity in a sustainable and cost-efficient way.
     </div>
 {% endblock %}

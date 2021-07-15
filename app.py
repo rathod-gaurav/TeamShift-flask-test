@@ -339,8 +339,91 @@ def alert():
 
 @app.route('/sendData/<temp>/<ph>/<tds>')
 def sendData(temp, ph, tds):
-    with open('temperature.csv', 'a') as f:
-        f.write(temp + ',' + ph + ',' + tds + "\n")
+    #capture the date in 'today' variable
+    date = datetime.date.today()
+    today = date.strftime('%d-%m-%Y')
+    
+    #save the reading from temperature sensor into t_{today}.txt file
+    with open(document_root + 'files/t/t_' + today + '.txt', 'a') as f:
+        f.write(temp + "\n")
+    
+    #save the reading from pH sensor into pH_{today}.txt file
+    with open(document_root + 'files/pH/pH_' + today + '.txt', 'a') as f:
+        f.write(ph + "\n")
+
+    #save the reading from tds sensor into tds_{today}.txt file
+    with open(document_root + 'files/tds/tds_' + today + '.txt', 'a') as f:
+        f.write(tds + "\n")
+
+    
+    #Code for checking discrepancies in the latest received readings
+        #reading config/config.csv and files/current_status.csv
+    config = pd.read_csv(document_root + 'config/config.csv', sep=',')
+    current_status = pd.read_csv(document_root + 'files/current_status.csv', sep=',')
+    homepage_flags = pd.read_csv(document_root + 'files/homepage_flags.csv', sep=',')
+
+    #updating current_status.csv file
+    #iterating the rows of config.csv file
+    for i in range(len(config.index)):
+        #first, store the msg of current phase in 'message' variable
+        message = f"Current Growth Phase : {config.loc[i][0]}"
+
+        #checking the correct month
+        if(int(today[3:5]) <= int(config.loc[i][2][5:7]) and int(today[3:5]) >= int(config.loc[i][1][5:7])):
+            #check for the correct date now
+            if(int(today[:2]) <= int(config.loc[i][2][8:10]) and int(today[:2]) >= int(config.loc[i][1][8:10])):
+                #update homepage_flags
+                if(homepage_flags.empty):
+                    homepage_flags = homepage_flags.append({'Timestamp' : config.loc[i][1], 'Message' : message}, ignore_index=True)
+                    homepage_flags.to_csv("files/homepage_flags.csv", index=False)
+                elif(message not in homepage_flags['Message']):
+                    break
+                else:
+                    homepage_flags = homepage_flags.append({'Timestamp' : config.loc[i][1], 'Message' : message}, ignore_index=True)
+                    homepage_flags.to_csv("files/homepage_flags.csv", index=False)
+        
+                
+                #update current_status
+                if(current_status.empty):
+                    current_status = current_status.append({'Growth Phase' : config.loc[i][0],
+                                                        'Start Date': config.loc[i][1], 'End Date' : config.loc[i][2],
+                                                        'Temp-LowerLimit' : config.loc[i][3], 'Temp-UpperLimit' : config.loc[i][4], 
+                                                        'pH-Lowerlimit' : config.loc[i][5], 'pH-UpperLimit' : config.loc[i][6], 
+                                                        'TDS-LowerLimit' : config.loc[i][7], 'TDS-UpperLimit' : config.loc[i][8],
+                                                        'Light(hrs/day)' : config.loc[i][9]}, ignore_index=True)
+                    current_status.to_csv(document_root + 'files/current_status.csv', index=False)
+                elif(config.loc[i][0] not in current_status['Growth Phase']):
+                    break
+                else:
+                    current_status = current_status.append({'Growth Phase' : config.loc[i][0],
+                                                        'Start Date': config.loc[i][1], 'End Date' : config.loc[i][2],
+                                                        'Temp-LowerLimit' : config.loc[i][3], 'Temp-UpperLimit' : config.loc[i][4], 
+                                                        'pH-Lowerlimit' : config.loc[i][5], 'pH-UpperLimit' : config.loc[i][6], 
+                                                        'TDS-LowerLimit' : config.loc[i][7], 'TDS-UpperLimit' : config.loc[i][8],
+                                                        'Light(hrs/day)' : config.loc[i][9]}, ignore_index=True)
+                    current_status.to_csv(document_root + 'files/current_status.csv', index=False)
+                
+                #send email notification that a new growth phase is encountered
+                get_ts = datetime.datetime.now(tz).timestamp()
+                readable_ts = time.ctime(get_ts)
+    
+                msg = Message('SHIFT001 System Update - Encountered change in Growth Phase', sender = 'noreply.teamshift@gmail.com', 
+                                                                                                recipients = ['rathod.gauravvinod@gmail.com',
+                                                                                                            #'200010001@iitb.ac.in',
+                                                                                                            '200010025@iitb.ac.in',
+                                                                                                            'abhishekpm95202@gmail.com',
+                                                                                                            'mlalwani0927@gmail.com',
+                                                                                                            'nikhilyadav.07n@gmail.com'])
+                msg.body = f"This email is generated at - \n {readable_ts}. \n \n Growth Phase of your system changed to {config.loc[i][0]}. All the corresponding parameters have been successfully updated. \n \n Please donot reply to this email. \n Regards, \n Team SHIFT"
+                mail.send(msg)
+
+
+    #read temp txt file for today
+    temp_today = np.loadtxt(document_root + 'files/t/t_' + today + '.txt')
+    #read pH txt file for today
+    pH_today = np.loadtxt(document_root + 'files/pH/pH_' + today + '.txt')
+    #read temp txt file for today
+    tds_today = np.loadtxt(document_root + 'files/tds/tds_' + today + '.txt')
 
     return "Data Saved"
 
