@@ -24,6 +24,8 @@ import pandas as pd
 import csv
 import os
 
+import json
+
 import pyrebase
 
 
@@ -355,9 +357,8 @@ def sendData(temp, ph, tds):
     with open(document_root + 'files/tds/tds_' + today + '.txt', 'a') as f:
         f.write(tds + "\n")
 
-    
-    #Code for checking discrepancies in the latest received readings
-        #reading config/config.csv and files/current_status.csv
+
+    #reading config/config.csv, files/current_status.csv and files/homepage_flags.csv
     config = pd.read_csv(document_root + 'config/config.csv', sep=',')
     current_status = pd.read_csv(document_root + 'files/current_status.csv', sep=',')
     homepage_flags = pd.read_csv(document_root + 'files/homepage_flags.csv', sep=',')
@@ -365,24 +366,54 @@ def sendData(temp, ph, tds):
     #updating current_status.csv file
     #iterating the rows of config.csv file
     for i in range(len(config.index)):
-        #first, store the msg of current phase in 'message' variable
-        message = f"Current Growth Phase : {config.loc[i][0]}"
 
         #checking the correct month
         if(int(today[3:5]) <= int(config.loc[i][2][5:7]) and int(today[3:5]) >= int(config.loc[i][1][5:7])):
             #check for the correct date now
             if(int(today[:2]) <= int(config.loc[i][2][8:10]) and int(today[:2]) >= int(config.loc[i][1][8:10])):
+                #first, store the msg of current phase in 'message' variable
+                message = f"Current Growth Phase : {config.loc[i][0]}"
+                
                 #update homepage_flags
                 if(homepage_flags.empty):
                     homepage_flags = homepage_flags.append({'Timestamp' : config.loc[i][1], 'Message' : message}, ignore_index=True)
-                    homepage_flags.to_csv("files/homepage_flags.csv", index=False)
-                elif(message not in homepage_flags['Message']):
+                    homepage_flags.to_csv(document_root + "files/homepage_flags.csv", index=False)
+
+                    #send email notification that a new growth phase is encountered
+                    get_ts = datetime.datetime.now(tz).timestamp()
+                    readable_ts = time.ctime(get_ts)
+        
+                    msg = Message('SHIFT001 System Update - Encountered change in Growth Phase', sender = 'noreply.teamshift@gmail.com', 
+                                                                                                    recipients = ['rathod.gauravvinod@gmail.com',
+                                                                                                                #'200010001@iitb.ac.in',
+                                                                                                                '200010025@iitb.ac.in',
+                                                                                                                'abhishekpm95202@gmail.com',
+                                                                                                                'mlalwani0927@gmail.com',
+                                                                                                                'nikhilyadav.07n@gmail.com'])
+                    msg.body = f"This email is generated at - \n {readable_ts}. \n \n Growth Phase of your system changed to {config.loc[i][0]}. All the corresponding parameters have been successfully updated. \n \n Please donot reply to this email. \n Regards, \n Team SHIFT"
+                    mail.send(msg)
+                elif(message in pd.DataFrame(homepage_flags).values):
                     break
                 else:
                     homepage_flags = homepage_flags.append({'Timestamp' : config.loc[i][1], 'Message' : message}, ignore_index=True)
-                    homepage_flags.to_csv("files/homepage_flags.csv", index=False)
+                    homepage_flags.to_csv(document_root + "files/homepage_flags.csv", index=False)
+
+                    #send email notification that a new growth phase is encountered
+                    get_ts = datetime.datetime.now(tz).timestamp()
+                    readable_ts = time.ctime(get_ts)
         
+                    msg = Message('SHIFT001 System Update - Encountered change in Growth Phase', sender = 'noreply.teamshift@gmail.com', 
+                                                                                                    recipients = ['rathod.gauravvinod@gmail.com',
+                                                                                                                #'200010001@iitb.ac.in',
+                                                                                                                '200010025@iitb.ac.in',
+                                                                                                                'abhishekpm95202@gmail.com',
+                                                                                                                'mlalwani0927@gmail.com',
+                                                                                                                'nikhilyadav.07n@gmail.com'])
+                    msg.body = f"This email is generated at - \n {readable_ts}. \n \n Growth Phase of your system changed to {config.loc[i][0]}. All the corresponding parameters have been successfully updated. \n \n Please donot reply to this email. \n Regards, \n Team SHIFT"
+                    mail.send(msg)
+
                 
+
                 #update current_status
                 if(current_status.empty):
                     current_status = current_status.append({'Growth Phase' : config.loc[i][0],
@@ -392,7 +423,7 @@ def sendData(temp, ph, tds):
                                                         'TDS-LowerLimit' : config.loc[i][7], 'TDS-UpperLimit' : config.loc[i][8],
                                                         'Light(hrs/day)' : config.loc[i][9]}, ignore_index=True)
                     current_status.to_csv(document_root + 'files/current_status.csv', index=False)
-                elif(config.loc[i][0] not in current_status['Growth Phase']):
+                elif(config.loc[i][0] in pd.DataFrame(current_status).values):
                     break
                 else:
                     current_status = current_status.append({'Growth Phase' : config.loc[i][0],
@@ -402,21 +433,9 @@ def sendData(temp, ph, tds):
                                                         'TDS-LowerLimit' : config.loc[i][7], 'TDS-UpperLimit' : config.loc[i][8],
                                                         'Light(hrs/day)' : config.loc[i][9]}, ignore_index=True)
                     current_status.to_csv(document_root + 'files/current_status.csv', index=False)
-                
-                #send email notification that a new growth phase is encountered
-                get_ts = datetime.datetime.now(tz).timestamp()
-                readable_ts = time.ctime(get_ts)
-    
-                msg = Message('SHIFT001 System Update - Encountered change in Growth Phase', sender = 'noreply.teamshift@gmail.com', 
-                                                                                                recipients = ['rathod.gauravvinod@gmail.com',
-                                                                                                            #'200010001@iitb.ac.in',
-                                                                                                            '200010025@iitb.ac.in',
-                                                                                                            'abhishekpm95202@gmail.com',
-                                                                                                            'mlalwani0927@gmail.com',
-                                                                                                            'nikhilyadav.07n@gmail.com'])
-                msg.body = f"This email is generated at - \n {readable_ts}. \n \n Growth Phase of your system changed to {config.loc[i][0]}. All the corresponding parameters have been successfully updated. \n \n Please donot reply to this email. \n Regards, \n Team SHIFT"
-                mail.send(msg)
 
+    
+    #Code for checking discrepancies in the latest received readings
 
     #read temp txt file for today
     temp_today = np.loadtxt(document_root + 'files/t/t_' + today + '.txt')
@@ -424,8 +443,229 @@ def sendData(temp, ph, tds):
     pH_today = np.loadtxt(document_root + 'files/pH/pH_' + today + '.txt')
     #read temp txt file for today
     tds_today = np.loadtxt(document_root + 'files/tds/tds_' + today + '.txt')
+    
+    #number of rows in current_status
+    present = len(current_status.index)
+    #lowerlimit and upperlimit
+        #for temperature
+    t_ll = current_status.loc[present - 1][3]
+    t_ul = current_status.loc[present - 1][4]
+        #for pH
+    pH_ll = current_status.loc[present - 1][5]
+    pH_ul = current_status.loc[present - 1][6]
+        #for tds
+    tds_ll = current_status.loc[present - 1][7]
+    tds_ul = current_status.loc[present - 1][8]
 
+    #latest readings
+        #initialize
+    t_curr = 0
+    pH_curr = 0
+    tds_curr = 0
+
+    if(np.size(temp_today) == 1):
+        t_curr = temp_today
+    else:
+        t_curr = temp_today[-1]
+    
+    if(np.size(pH_today) == 1):
+        pH_curr = pH_today
+    else:
+        pH_curr = pH_today[-1]
+    
+    if(np.size(tds_today) == 1):
+        tds_curr = tds_today
+    else:
+        tds_curr = tds_today[-1]
+
+    #t_flags file 'files/t/t_flags/t_discrepancies.csv'
+    t_flags = pd.read_csv(document_root + 'files/t/t_flags/t_discrepancies.csv', sep=',')
+    
+    #pH_flags file 'files/pH/pH_flags/pH_discrepancies.csv'
+    pH_flags = pd.read_csv(document_root + 'files/pH/pH_flags/pH_discrepancies.csv', sep=',')
+    
+    #tds_flags file 'files/tds/tds_flags/tds_discrepancies.csv'
+    tds_flags = pd.read_csv(document_root + 'files/tds/tds_flags/tds_discrepancies.csv', sep=',')
+
+    
+    #update flags on each parameter page and send notifications
+    #check temperature discrepancies
+    if(t_curr < t_ll):
+        #timestamp
+        get_ts = datetime.datetime.now(tz).timestamp()
+        readable_ts = time.ctime(get_ts)
+        #message
+        message = "System running low on Temperature."
+        #append message and timestamp to t_discrepancies.csv
+        if(t_flags.empty):
+            t_flags = t_flags.append({'Timestamp' : readable_ts, 'Message' : message}, ignore_index=True)
+            t_flags.to_csv(document_root + 'files/t/t_flags/t_discrepancies.csv', index=False)
+        else:
+            t_flags = t_flags.append({'Timestamp' : readable_ts, 'Message' : message}, ignore_index=True)
+            t_flags.to_csv(document_root + 'files/t/t_flags/t_discrepancies.csv', index=False)
+        
+        #send the email
+        msg = Message('SHIFT001 System Update - Temperature Discrepancy', sender = 'noreply.teamshift@gmail.com', 
+                                                                        recipients = ['rathod.gauravvinod@gmail.com',
+                                                                                    #'200010001@iitb.ac.in',
+                                                                                    '200010025@iitb.ac.in',
+                                                                                    'abhishekpm95202@gmail.com',
+                                                                                    'mlalwani0927@gmail.com',
+                                                                                    'nikhilyadav.07n@gmail.com'])
+        msg.body = f"This email is generated at - \n {readable_ts}. \n \n {message}. \nAppropriate steps have been taken to ensure the system runs smoothly. If the you are receiving this message more than once after consequetive buffer of 100 seconds, then there's some hardware discrepancy in your system. Kindly Check your electrical setup. \n \nPlease donot reply to this email. \n Regards, \n Team SHIFT"
+        mail.send(msg)
+    
+    if(t_curr > t_ul):
+        #timestamp
+        get_ts = datetime.datetime.now(tz).timestamp()
+        readable_ts = time.ctime(get_ts)
+        #message
+        message = "System Temperature exceeded above the desired limit."
+        #append message and timestamp to t_discrepancies.csv
+        if(t_flags.empty):
+            t_flags = t_flags.append({'Timestamp' : readable_ts, 'Message' : message}, ignore_index=True)
+            t_flags.to_csv(document_root + 'files/t/t_flags/t_discrepancies.csv', index=False)
+        else:
+            t_flags = t_flags.append({'Timestamp' : readable_ts, 'Message' : message}, ignore_index=True)
+            t_flags.to_csv(document_root + 'files/t/t_flags/t_discrepancies.csv', index=False)
+        
+        #send the email
+        msg = Message('SHIFT001 System Update - Temperature Discrepancy', sender = 'noreply.teamshift@gmail.com', 
+                                                                        recipients = ['rathod.gauravvinod@gmail.com',
+                                                                                    #'200010001@iitb.ac.in',
+                                                                                    '200010025@iitb.ac.in',
+                                                                                    'abhishekpm95202@gmail.com',
+                                                                                    'mlalwani0927@gmail.com',
+                                                                                    'nikhilyadav.07n@gmail.com'])
+        msg.body = f"This email is generated at - \n {readable_ts}. \n \n {message}. \nAppropriate steps have been taken to ensure the system runs smoothly. If the you are receiving this message more than once after consequetive buffer of 100 seconds, then there's some hardware discrepancy in your system. Kindly Check your electrical setup. \n \nPlease donot reply to this email. \n Regards, \n Team SHIFT"
+        mail.send(msg)
+
+    
+    
+    #check pH discrepancies
+    if(pH_curr < pH_ll):
+        #timestamp
+        get_ts = datetime.datetime.now(tz).timestamp()
+        readable_ts = time.ctime(get_ts)
+        #message
+        message = "System running low on pH."
+        #append message and timestamp to t_discrepancies.csv
+        if(pH_flags.empty):
+            pH_flags = pH_flags.append({'Timestamp' : readable_ts, 'Message' : message}, ignore_index=True)
+            pH_flags.to_csv(document_root + 'files/pH/pH_flags/pH_discrepancies.csv', index=False)
+        else:
+            pH_flags = pH_flags.append({'Timestamp' : readable_ts, 'Message' : message}, ignore_index=True)
+            pH_flags.to_csv(document_root + 'files/pH/pH_flags/pH_discrepancies.csv', index=False)
+        
+        #send the email
+        msg = Message('SHIFT001 System Update - pH Discrepancy', sender = 'noreply.teamshift@gmail.com', 
+                                                                        recipients = ['rathod.gauravvinod@gmail.com',
+                                                                                    #'200010001@iitb.ac.in',
+                                                                                    '200010025@iitb.ac.in',
+                                                                                    'abhishekpm95202@gmail.com',
+                                                                                    'mlalwani0927@gmail.com',
+                                                                                    'nikhilyadav.07n@gmail.com'])
+        msg.body = f"This email is generated at - \n {readable_ts}. \n \n {message}. \n Appropriate steps have been taken to ensure the system runs smoothly. If the you are receiving this message more than once after consequetive buffer of 100 seconds, then there's some hardware discrepancy in your system. Kindly Check your electrical setup. \n \n Please donot reply to this email. \n Regards, \n Team SHIFT"
+        mail.send(msg)
+
+    if(pH_curr > pH_ul):
+        #timestamp
+        get_ts = datetime.datetime.now(tz).timestamp()
+        readable_ts = time.ctime(get_ts)
+        #message
+        message = "System pH exceeded above desired value."
+        #append message and timestamp to t_discrepancies.csv
+        if(pH_flags.empty):
+            pH_flags = pH_flags.append({'Timestamp' : readable_ts, 'Message' : message}, ignore_index=True)
+            pH_flags.to_csv(document_root + 'files/pH/pH_flags/pH_discrepancies.csv', index=False)
+        else:
+            pH_flags = pH_flags.append({'Timestamp' : readable_ts, 'Message' : message}, ignore_index=True)
+            pH_flags.to_csv(document_root + 'files/pH/pH_flags/pH_discrepancies.csv', index=False)
+        
+        #send the email
+        msg = Message('SHIFT001 System Update - pH Discrepancy', sender = 'noreply.teamshift@gmail.com', 
+                                                                        recipients = ['rathod.gauravvinod@gmail.com',
+                                                                                    #'200010001@iitb.ac.in',
+                                                                                    '200010025@iitb.ac.in',
+                                                                                    'abhishekpm95202@gmail.com',
+                                                                                    'mlalwani0927@gmail.com',
+                                                                                    'nikhilyadav.07n@gmail.com'])
+        msg.body = f"This email is generated at - \n {readable_ts}. \n \n {message}. \n Appropriate steps have been taken to ensure the system runs smoothly. If the you are receiving this message more than once after consequetive buffer of 100 seconds, then there's some hardware discrepancy in your system. Kindly Check your electrical setup. \n \n Please donot reply to this email. \n Regards, \n Team SHIFT"
+        mail.send(msg)
+
+    
+    #check tds discrepancies
+    if(tds_curr < tds_ll):
+        #timestamp
+        get_ts = datetime.datetime.now(tz).timestamp()
+        readable_ts = time.ctime(get_ts)
+        #message
+        message = "System running low on TDS."
+        #append message and timestamp to t_discrepancies.csv
+        if(tds_flags.empty):
+            tds_flags = tds_flags.append({'Timestamp' : readable_ts, 'Message' : message}, ignore_index=True)
+            tds_flags.to_csv(document_root + 'files/tds/tds_flags/tds_discrepancies.csv', index=False)
+        else:
+            tds_flags = tds_flags.append({'Timestamp' : readable_ts, 'Message' : message}, ignore_index=True)
+            tds_flags.to_csv(document_root + 'files/tds/tds_flags/tds_discrepancies.csv', index=False)
+        
+        #send the email
+        msg = Message('SHIFT001 System Update - TDS Discrepancy', sender = 'noreply.teamshift@gmail.com', 
+                                                                        recipients = ['rathod.gauravvinod@gmail.com',
+                                                                                    #'200010001@iitb.ac.in',
+                                                                                    '200010025@iitb.ac.in',
+                                                                                    'abhishekpm95202@gmail.com',
+                                                                                    'mlalwani0927@gmail.com',
+                                                                                    'nikhilyadav.07n@gmail.com'])
+        msg.body = f"This email is generated at - \n {readable_ts}. \n \n {message}. \n Appropriate steps have been taken to ensure the system runs smoothly. If the you are receiving this message more than once after consequetive buffer of 100 seconds, then there's some hardware discrepancy in your system. Kindly Check your electrical setup. \n \n Please donot reply to this email. \n Regards, \n Team SHIFT"
+        mail.send(msg)
+
+    if(tds_curr > tds_ul):
+        #timestamp
+        get_ts = datetime.datetime.now(tz).timestamp()
+        readable_ts = time.ctime(get_ts)
+        #message
+        message = "System TDS exceeded above desired value."
+        #append message and timestamp to t_discrepancies.csv
+        if(tds_flags.empty):
+            tds_flags = tds_flags.append({'Timestamp' : readable_ts, 'Message' : message}, ignore_index=True)
+            tds_flags.to_csv(document_root + 'files/tds/tds_flags/tds_discrepancies.csv', index=False)
+        else:
+            tds_flags = tds_flags.append({'Timestamp' : readable_ts, 'Message' : message}, ignore_index=True)
+            tds_flags.to_csv(document_root + 'files/tds/tds_flags/tds_discrepancies.csv', index=False)
+        
+        #send the email
+        msg = Message('SHIFT001 System Update - TDS Discrepancy', sender = 'noreply.teamshift@gmail.com', 
+                                                                        recipients = ['rathod.gauravvinod@gmail.com',
+                                                                                    #'200010001@iitb.ac.in',
+                                                                                    '200010025@iitb.ac.in',
+                                                                                    'abhishekpm95202@gmail.com',
+                                                                                    'mlalwani0927@gmail.com',
+                                                                                    'nikhilyadav.07n@gmail.com'])
+        msg.body = f"This email is generated at - \n {readable_ts}. \n \n {message}. \nAppropriate steps have been taken to ensure the system runs smoothly. If the you are receiving this message more than once after consequetive buffer of 100 seconds, then there's some hardware discrepancy in your system. Kindly Check your electrical setup. \n \n Please donot reply to this email. \n Regards, \n Team SHIFT"
+        mail.send(msg)
+
+    #final return statement
     return "Data Saved"
+
+@app.route('/receiveData')
+def receiveData():
+    #read the files/current_status.csv file
+    current_status = pd.read_csv(document_root + 'files/current_status.csv', sep=',')
+
+    cs = len(current_status.index) - 1
+
+    #create the dictionary for the limits of parameters according to current status of the system
+    cs_dict =  {
+        "temp_ll" : current_status.loc[cs][3],
+        "temp_ul" : current_status.loc[cs][4],
+        "pH_ll" : current_status.loc[cs][5],
+        "pH_ul" : current_status.loc[cs][6],
+        "tds_ll" : current_status.loc[cs][7],
+        "tds_ul" : current_status.loc[cs][8]
+    }
+
+    return json.dumps(cs_dict)
 
 if __name__ == '__main__':
     app.run(debug=True)
