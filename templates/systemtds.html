@@ -12,13 +12,15 @@
     <div class="card">
         <div class="card-header bg-dark text-white"><strong>Current TDS Trend</strong></div>
         <div class="card-body">
-            <div class="card-title text-muted">Showing latest 100 readings trend.</div>
+            <div class="card-title text-muted">Showing latest {{ tds_count_y }} readings trend.</div>
+            <!-- <div class="card-title text-muted">Delay Upto end  = {{ delay_end }}</div>
+            <div class="card-title text-muted">Delay Upto stage1  = {{ delay_stage1 }}</div> -->
         </div>
-        <img class="card-img-bottom img-fluid" src="{{ tds }}" alt="Card TDS plot">
+        <img class="card-img-bottom img-fluid" src="../static/tds/tds_plot_today.png" alt="Card tds plot">
     </div>
 </div>
 <div class="col-12 col-lg-4">
-    <div class="card bg-dark mt-3">
+    <div class="card bg-dark mt-3 mb-3">
         <div class="card-header text-white text-center"><strong>Remarks</strong></div>
         <div class="card-body">
             <div class="row justify-content-center">
@@ -26,7 +28,7 @@
                     <div class="card border-secondary bg-light text-black text-center mt-3 mb-3">
                         <div class="card-header">Current Reading</div>
                         <div class="card-body">
-                            <h5 class="card-title">15</h5>
+                            <h5 class="card-title">{{ tds_curr }}</h5>
                         </div>
                     </div>
                 </div>
@@ -36,7 +38,7 @@
                     <div class="card border-secondary bg-light text-black text-center mt-3 mb-3">
                         <div class="card-header">Average Reading</div>
                         <div class="card-body">
-                            <h5 class="card-title">25</h5>
+                            <h5 class="card-title">{{ tds_avg }}</h5>
                         </div>
                     </div>
                 </div>
@@ -44,7 +46,25 @@
                     <div class="card border-secondary bg-light text-black text-center mt-3 mb-3">
                         <div class="card-header">Total Reading Count</div>
                         <div class="card-body">
-                            <h5 class="card-title">35</h5>
+                            <h5 class="card-title">{{ tds_count }}</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-6 col-sm-8 col-md-6">
+                    <div class="card border-warning text-black text-center mt-3 mb-3">
+                        <div class="card-header bg-warning">Current LowerLimit</div>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ lowerlimit }}</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-sm-8 col-md-6">
+                    <div class="card border-warning text-black text-center mt-3 mb-3">
+                        <div class="card-header bg-warning">Current UpperLimit</div>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ upperlimit }}</h5>
                         </div>
                     </div>
                 </div>
@@ -52,11 +72,27 @@
         </div>
     </div>
 </div>
+
+<div class="col-12 col-sm-12">
+    <div class="card">
+        <div class="card-header bg-dark text-white"><strong>Past TDS Trend</strong></div>
+        <div class="card-body">
+            <div class="card-title text-muted">Showing past {{ number_prev_days }} days trend.</div>
+            <!-- <div class="card-title text-muted">Delay Upto end  = {{ delay_end }}</div>
+            <div class="card-title text-muted">Delay Upto stage1  = {{ delay_stage1 }}</div> -->
+        </div>
+        <img class="card-img-bottom img-fluid mt-0" src="../static/tds/tds_plot_prev.png" alt="prev TDS plot"  style="max-height: 500px;">
+    </div>
+</div>
+
+
 <div class="col-12 col-sm-12">
     <div class="card border-secondary bg-light mt-4 mb-4">
         <div class="card-header bg-dark text-white"><strong>Flags</strong></div>
-        <div class="card-body">
-
+        <div class="card-body table-responsive">
+            {% for table in tables %}
+                {{ table|safe }}
+            {% endfor %}
         </div>
     </div>
 </div>

@@ -26,22 +26,22 @@ import os
 
 import json
 
-import pyrebase
+#import pyrebase
 
 
-config = {
-    "apiKey": "AIzaSyDYQDUyk3lN5Q9qoIc70iym3pQ-2_z-1Pc",
-    "authDomain": "shift-ui-f9cec.firebaseapp.com",
-    "databaseURL": "https://shift-ui-f9cec-default-rtdb.firebaseio.com",
-    "projectId": "shift-ui-f9cec",
-    "storageBucket": "shift-ui-f9cec.appspot.com",
-    "messagingSenderId": "1062070212588",
-    "appId": "1:1062070212588:web:57cafd0b3a9491156292c9",
-    "measurementId": "G-HBDGWZTHJB"
-}
+#config = {
+#    "apiKey": "AIzaSyDYQDUyk3lN5Q9qoIc70iym3pQ-2_z-1Pc",
+#    "authDomain": "shift-ui-f9cec.firebaseapp.com",
+#    "databaseURL": "https://shift-ui-f9cec-default-rtdb.firebaseio.com",
+#    "projectId": "shift-ui-f9cec",
+#    "storageBucket": "shift-ui-f9cec.appspot.com",
+#    "messagingSenderId": "1062070212588",
+#    "appId": "1:1062070212588:web:57cafd0b3a9491156292c9",
+#    "measurementId": "G-HBDGWZTHJB"
+#}
 
-firebase = pyrebase.initialize_app(config)
-storage = firebase.storage()
+#firebase = pyrebase.initialize_app(config)
+#storage = firebase.storage()
 
 
 from flask_mail import Mail, Message
@@ -189,21 +189,7 @@ def homepage():
                 break
             else:
                 homepage_flags = homepage_flags.append({'Timestamp' : config.loc[i][2], 'Message' : message})
-    
 
-    #update current status    
-    current_status = pd.read_csv(document_root + 'files/current_status.csv', sep=',')
-
-    for i in range(len(config.index)):
-        if(readable_ts_2 == config.loc[i][1]):
-            if(current_status.empty):
-                current_status = current_status.append(config.loc[i])
-                current_status.to_csv(document_root + 'files/current_status.csv', index=False)
-            elif(config.loc[i][0] in current_status.iloc[0][0]):
-                break
-            else:
-                current_status = current_status.append(config.loc[i])
-                current_status.to_csv(document_root + 'files/current_status.csv', index=False)
 
 
     return render_template('homepage.html', title='Homepage',
@@ -214,23 +200,31 @@ def homepage():
 
 @app.route('/systemTemperature')
 def systemTemperature():
+    #today's date
+    date = datetime.date.today()
+    today = date.strftime('%d-%m-%Y')
 
-    # storage.child("data/sachin.txt").put("temp.txt")
-
-    #start_time = time.time()
-
-    #download file from firebase
-    #storage.child("data/sachin.txt").download('data/sachin.txt', 'temp.txt')
-    #time_Stage1 = time.time()
-
-    #initializing an array to plot the graph
-    data1 = np.loadtxt(document_root + 'test.txt', delimiter=',')
+    
+    #current_status = pd.read_csv(document_root + 'files/current_status.csv', sep=',')
+    #cs = len(current_status.index) - 1
+    #var1 = current_status.loc[cs][3] #lowerlimit
+    #var2 = current_status.loc[cs][4] #upperlimit
+    #random_reading = np.random.uniform(low=var1, high =var2)
+    
+    #with open(document_root + 'files/t/t_' + today + '.txt', 'a') as f:
+    #    f.write(str(random_reading) + "\n")
+    
+    #read readings corresponding to today's date
+    #initializing an array to plot the graph1
+    data1 = np.loadtxt(document_root + 'files/t/t_' + today + '.txt')
+    
+    
     #if number of entries in data1 < 100
     if(np.size(data1) < 100):
         data2 = data1
     else:
-        data2 = data1[-100 : None]
-    
+        data2 = data1[-100:None]
+
     #initialize another array of size equal to data2
     data3 = range(np.size(data2))
 
@@ -239,80 +233,95 @@ def systemTemperature():
     plt.clf()
 
     #defining lowerlimit and upperlimit
-    var1 = 100 #upperlimit
-    var2 = 40 #lowerlimit
-
-    #find number of entries in the temp_discrepancies.csv file
-    file = open(document_root + 'temp_discrepancies.csv')
-    reader = csv.reader(file)
-    disc_num = len(list(reader))
-
-    #checking for discrepancies
-    for reading in range(np.size(data2)):
-        if(data2[reading] >= var1):
-            plt.plot(data3[reading], data2[reading], 'ro')
-            #append message with timestamp that reading exceeded upper limit to another array
-            get_ts = datetime.datetime.now(tz).timestamp()
-            readable_ts = time.ctime(get_ts)
-            message = "Temperature Exceeded above Upper Limit."
-            df = pd.DataFrame({'timestamp' : readable_ts, 'message' : message}, index=[disc_num])
-            disc_num += 1
-            df.to_csv(document_root + 'temp_discrepancies.csv', mode='a', header=False)
-            #code here
-        elif(data2[reading] <= var2):
-            plt.plot(data3[reading], data2[reading], 'b.')
-            #append message with time stamp that reading went below lowerlimit to another array
-            get_ts = datetime.datetime.now(tz).timestamp()
-            readable_ts = time.ctime(get_ts)
-            message = "System running low on Temperature."
-            df = pd.DataFrame({'timestamp' : readable_ts, 'message' : message}, index=[disc_num])
-            disc_num += 1
-            df.to_csv(document_root + 'temp_discrepancies.csv', mode='a', header=False)
-            #code here
-    
-    #push the discrepancy dataframe csv to firebase
-    storage.child("temp/temp_discrepancies.csv").put(document_root + 'temp_discrepancies.csv')
-    #get link to this file from firebase
-    temp_disc_csv_link = storage.child("temp/temp_discrepancies.csv").get_url(None)
-
-    #final plot
-    plt.xlim(min(data3) - 2, max(data3) + 2)
-    plt.ylim(min(data2) - 10, max(data2) + 10)
-    plt.plot(data3, data2)
-    #horizontal lines representing lower and upper limits
-    plt.axhline(y=var2, color='dodgerblue')
-    plt.axhline(y=var1, color='tomato')
-    #filling the plot
-    plt.fill_between(data3, data2, -10, color = 'limegreen')
-    #annotate current reading
-    plt.annotate('Current Reading', xy = (data3[-1], data2[-1]))
-
-    #saving the plot as a png file
-    plt.savefig(document_root + 'temp_plot.png')
-
-    #push the png image to firebase at a convenient location
-    storage.child("images/temp.png").put(document_root + 'temp_plot.png')
-
+    #lowerlimit = var1 ; upperlimit = var2
+        #read the files/current_status.csv file
+    current_status = pd.read_csv(document_root + 'files/current_status.csv', sep=',')
+    cs = len(current_status.index) - 1
+    var1 = current_status.loc[cs][3] #lowerlimit
+    var2 = current_status.loc[cs][4] #upperlimit
     #finding other details
     average = np.mean(data1) #average of all readings
     size_x = np.size(data1) #total number of readings taken
     size_y = np.size(data2) #number of readings used for plotting
     current = data2[-1] #current reading
 
-    #getting link of png image uploaded to firebase
-    plot_link = storage.child("images/temp.png").get_url(None)
 
-    #miscellaneous
-    #end_time = time.time()
-    #time_delay_end = end_time - start_time
-    #time_delay_stage1 = end_time - time_Stage1
+    #final plot for graph 1
+    plt.xlim(min(data3) - 2, max(data3) + 2)
+    plt.ylim(min(data2) - 10, max(data2) + 10)
+    plt.plot(data3, data2)
+    #horizontal lines representing lower and upper limits
+    plt.axhline(y=var1, color='dodgerblue') #lowerlimit
+    plt.axhline(y=var2, color='tomato') #upperlimit
+    #filling the plot
+    plt.fill_between(data3, data2, -10, color = 'limegreen')
+    #annotate current reading
+    plt.annotate('Current Reading', xy = (data3[-1], data2[-1]))
 
+    #saving the plot as a png file
+    plt.savefig(document_root + 'static/t/t_plot_today.png')
+
+    
     #reading dataframe table for discrepancies
-    discrepancies = pd.read_csv(document_root + 'temp_discrepancies.csv', sep=',', index_col='Index')
+    discrepancies = pd.read_csv(document_root + 'files/t/t_flags/t_discrepancies.csv', sep=',')
+
+
+    #code for graph2 ########################### 
+    ############# graph2 shows trend of average of previous days ################
+    
+    #empty array to store average values
+    data4 = []
+
+
+    #path for reading all txt files
+    path = document_root + 'files/t'
+    #os.chdir(path)
+    #iterate through all files
+    for file in os.listdir(path):
+        #check whether file is in txt format or not
+        if file.endswith(".txt"):
+            file_path = f"{path}/{file}"
+            filedata = np.loadtxt(file_path)
+            file_avg = np.mean(filedata)
+            data4.append(file_avg)
+        else:
+            continue
+                
+    np.savetxt(document_root + 'files/t/t_prev/t_prev_avg.txt', data4)
+    
+    #initialize another array of size equal to data4
+    data5 = range(np.size(data4))
+    
+    #plotting the graph
+    #plot dimensions
+    plt.figure(2)
+    plt.figure(figsize=(12,6))
+    plt.clf()
+
+    #number of days used for showing plot
+    number = np.size(data4)
+
+    #final plot for graph 1
+    plt.xlim(min(data5) - 2, max(data5) + 2)
+    plt.ylim(min(data4) - 10, max(data4) + 10)
+    plt.plot(data5, data4)
+    #horizontal lines representing lower and upper limits
+    plt.axhline(y=var1, color='dodgerblue') #lowerlimit
+    plt.axhline(y=var2, color='tomato') #upperlimit
+    #filling the plot
+    plt.fill_between(data5, data4, -10, color = 'limegreen')
+    #annotate current day
+    plt.annotate("Today's Average" , xy = (data5[-1], data4[-1]))
+
+    #saving the plot as a png file
+    plt.savefig(document_root + 'static/t/t_plot_prev.png')
+
 
     return render_template('systemTemperature.html',
-                            title='Temperature', temp=plot_link, t_avg=average,
+                            title='Temperature', t_avg=average,
                             t_count=size_x, t_count_y=size_y, t_curr=current,
+                            lowerlimit = var1, upperlimit = var2,
+                            number_prev_days = number,
                             #delay_end=time_delay_end, delay_stage1=time_delay_stage1,
                             #flags table
                             tables = [discrepancies.to_html(classes = 'flags table')],
@@ -320,11 +329,239 @@ def systemTemperature():
 
 @app.route('/systempH')
 def systempH():
-    return render_template('systempH.html', title='pH')
+    #today's date
+    date = datetime.date.today()
+    today = date.strftime('%d-%m-%Y')
+
+    #read readings corresponding to today's date
+    #initializing an array to plot the graph1
+    data1 = np.loadtxt(document_root + 'files/pH/pH_' + today + '.txt')
+    
+    #if number of entries in data1 < 100
+    if(np.size(data1) < 100):
+        data2 = data1
+    else:
+        data2 = data1[-100:None]
+
+    #initialize another array of size equal to data2
+    data3 = range(np.size(data2))
+
+    #plot dimensions
+    plt.figure(figsize=(12,6))
+    plt.clf()
+
+    #defining lowerlimit and upperlimit
+    #lowerlimit = var1 ; upperlimit = var2
+        #read the files/current_status.csv file
+    current_status = pd.read_csv(document_root + 'files/current_status.csv', sep=',')
+    cs = len(current_status.index) - 1
+    var1 = current_status.loc[cs][5] #lowerlimit
+    var2 = current_status.loc[cs][6] #upperlimit
+    #finding other details
+    average = np.mean(data1) #average of all readings
+    size_x = np.size(data1) #total number of readings taken
+    size_y = np.size(data2) #number of readings used for plotting
+    current = data2[-1] #current reading
+
+
+    #final plot for graph 1
+    plt.xlim(min(data3) - 2, max(data3) + 2)
+    plt.ylim(min(data2) - 10, max(data2) + 10)
+    plt.plot(data3, data2)
+    #horizontal lines representing lower and upper limits
+    plt.axhline(y=var1, color='dodgerblue') #lowerlimit
+    plt.axhline(y=var2, color='tomato') #upperlimit
+    #filling the plot
+    plt.fill_between(data3, data2, -10, color = 'limegreen')
+    #annotate current reading
+    plt.annotate('Current Reading', xy = (data3[-1], data2[-1]))
+
+    #saving the plot as a png file
+    plt.savefig(document_root + 'static/pH/pH_plot_today.png')
+
+    
+    #reading dataframe table for discrepancies
+    discrepancies = pd.read_csv(document_root + 'files/pH/pH_flags/pH_discrepancies.csv', sep=',')
+
+
+    #code for graph2 ########################### 
+    ############# graph2 shows trend of average of previous days ################
+    
+    #empty array to store average values
+    data4 = []
+
+
+    #path for reading all txt files
+    path = document_root + 'files/pH'
+    #os.chdir(path)
+    #iterate through all files
+    for file in os.listdir(path):
+        #check whether file is in txt format or not
+        if file.endswith(".txt"):
+            file_path = f"{path}/{file}"
+            filedata = np.loadtxt(file_path)
+            file_avg = np.mean(filedata)
+            data4.append(file_avg)
+        else:
+            continue
+                
+    np.savetxt(document_root + 'files/pH/pH_prev/pH_prev_avg.txt', data4)
+    
+    #initialize another array of size equal to data4
+    data5 = range(np.size(data4))
+    
+    #plotting the graph
+    #plot dimensions
+    plt.figure(2)
+    plt.figure(figsize=(12,6))
+    plt.clf()
+
+    #number of days used for showing plot
+    number = np.size(data4)
+
+    #final plot for graph 1
+    plt.xlim(min(data5) - 2, max(data5) + 2)
+    plt.ylim(min(data4) - 10, max(data4) + 10)
+    plt.plot(data5, data4)
+    #horizontal lines representing lower and upper limits
+    plt.axhline(y=var1, color='dodgerblue') #lowerlimit
+    plt.axhline(y=var2, color='tomato') #upperlimit
+    #filling the plot
+    plt.fill_between(data5, data4, -10, color = 'limegreen')
+    #annotate current day
+    plt.annotate("Today's Average" , xy = (data5[-1], data4[-1]))
+
+    #saving the plot as a png file
+    plt.savefig(document_root + 'static/pH/pH_plot_prev.png')
+
+
+    return render_template('systempH.html',
+                            title='pH', pH_avg=average,
+                            pH_count=size_x, pH_count_y=size_y, pH_curr=current,
+                            lowerlimit = var1, upperlimit = var2,
+                            number_prev_days = number,
+                            #delay_end=time_delay_end, delay_stage1=time_delay_stage1,
+                            #flags table
+                            tables = [discrepancies.to_html(classes = 'flags table')],
+                            )
 
 @app.route('/systemTDS')
 def systemTDS():
-    return render_template('systemtds.html', title='EC/TDS')
+    #today's date
+    date = datetime.date.today()
+    today = date.strftime('%d-%m-%Y')
+
+    #read readings corresponding to today's date
+    #initializing an array to plot the graph1
+    data1 = np.loadtxt(document_root + 'files/tds/tds_' + today + '.txt')
+    
+    #if number of entries in data1 < 100
+    if(np.size(data1) < 100):
+        data2 = data1
+    else:
+        data2 = data1[-100:None]
+
+    #initialize another array of size equal to data2
+    data3 = range(np.size(data2))
+
+    #plot dimensions
+    plt.figure(figsize=(12,6))
+    plt.clf()
+
+    #defining lowerlimit and upperlimit
+    #lowerlimit = var1 ; upperlimit = var2
+        #read the files/current_status.csv file
+    current_status = pd.read_csv(document_root + 'files/current_status.csv', sep=',')
+    cs = len(current_status.index) - 1
+    var1 = current_status.loc[cs][7] #lowerlimit
+    var2 = current_status.loc[cs][8] #upperlimit
+    #finding other details
+    average = np.mean(data1) #average of all readings
+    size_x = np.size(data1) #total number of readings taken
+    size_y = np.size(data2) #number of readings used for plotting
+    current = data2[-1] #current reading
+
+
+    #final plot for graph 1
+    plt.xlim(min(data3) - 2, max(data3) + 2)
+    plt.ylim(min(data2) - 10, max(data2) + 10)
+    plt.plot(data3, data2)
+    #horizontal lines representing lower and upper limits
+    plt.axhline(y=var1, color='dodgerblue') #lowerlimit
+    plt.axhline(y=var2, color='tomato') #upperlimit
+    #filling the plot
+    plt.fill_between(data3, data2, -10, color = 'limegreen')
+    #annotate current reading
+    plt.annotate('Current Reading', xy = (data3[-1], data2[-1]))
+
+    #saving the plot as a png file
+    plt.savefig(document_root + 'static/tds/tds_plot_today.png')
+
+    
+    #reading dataframe table for discrepancies
+    discrepancies = pd.read_csv(document_root + 'files/tds/tds_flags/tds_discrepancies.csv', sep=',')
+
+
+    #code for graph2 ########################### 
+    ############# graph2 shows trend of average of previous days ################
+    
+    #empty array to store average values
+    data4 = []
+
+
+    #path for reading all txt files
+    path = document_root + 'files/tds'
+    #os.chdir(path)
+    #iterate through all files
+    for file in os.listdir(path):
+        #check whether file is in txt format or not
+        if file.endswith(".txt"):
+            file_path = f"{path}/{file}"
+            filedata = np.loadtxt(file_path)
+            file_avg = np.mean(filedata)
+            data4.append(file_avg)
+        else:
+            continue
+                
+    np.savetxt(document_root + 'files/tds/tds_prev/tds_prev_avg.txt', data4)
+    
+    #initialize another array of size equal to data4
+    data5 = range(np.size(data4))
+    
+    #plotting the graph
+    #plot dimensions
+    plt.figure(2)
+    plt.figure(figsize=(12,6))
+    plt.clf()
+
+    #number of days used for showing plot
+    number = np.size(data4)
+
+    #final plot for graph 1
+    plt.xlim(min(data5) - 2, max(data5) + 2)
+    plt.ylim(min(data4) - 10, max(data4) + 10)
+    plt.plot(data5, data4)
+    #horizontal lines representing lower and upper limits
+    plt.axhline(y=var1, color='dodgerblue') #lowerlimit
+    plt.axhline(y=var2, color='tomato') #upperlimit
+    #filling the plot
+    plt.fill_between(data5, data4, -10, color = 'limegreen')
+    #annotate current day
+    plt.annotate("Today's Average" , xy = (data5[-1], data4[-1]))
+
+    #saving the plot as a png file
+    plt.savefig(document_root + 'static/tds/tds_plot_prev.png')
+
+
+    return render_template('systemtds.html',
+                            title='TDS', tds_avg=average,
+                            tds_count=size_x, tds_count_y=size_y, tds_curr=current,
+                            lowerlimit = var1, upperlimit = var2,
+                            number_prev_days = number,
+                            #delay_end=time_delay_end, delay_stage1=time_delay_stage1,
+                            #flags table
+                            tables = [discrepancies.to_html(classes = 'flags table')],
+                            )
 
 @app.route('/alertmessage')
 def alert():
@@ -443,6 +680,7 @@ def sendData(temp, ph, tds):
     pH_today = np.loadtxt(document_root + 'files/pH/pH_' + today + '.txt')
     #read temp txt file for today
     tds_today = np.loadtxt(document_root + 'files/tds/tds_' + today + '.txt')
+
     
     #number of rows in current_status
     present = len(current_status.index)
@@ -495,7 +733,7 @@ def sendData(temp, ph, tds):
         get_ts = datetime.datetime.now(tz).timestamp()
         readable_ts = time.ctime(get_ts)
         #message
-        message = "System running low on Temperature."
+        message = f"System running low on Temperature ({t_curr})."
         #append message and timestamp to t_discrepancies.csv
         if(t_flags.empty):
             t_flags = t_flags.append({'Timestamp' : readable_ts, 'Message' : message}, ignore_index=True)
@@ -520,7 +758,7 @@ def sendData(temp, ph, tds):
         get_ts = datetime.datetime.now(tz).timestamp()
         readable_ts = time.ctime(get_ts)
         #message
-        message = "System Temperature exceeded above the desired limit."
+        message = f"System Temperature ({t_curr}) exceeded above the desired limit ({t_ul})."
         #append message and timestamp to t_discrepancies.csv
         if(t_flags.empty):
             t_flags = t_flags.append({'Timestamp' : readable_ts, 'Message' : message}, ignore_index=True)
@@ -548,7 +786,7 @@ def sendData(temp, ph, tds):
         get_ts = datetime.datetime.now(tz).timestamp()
         readable_ts = time.ctime(get_ts)
         #message
-        message = "System running low on pH."
+        message = f"System running low on pH ({pH_curr})."
         #append message and timestamp to t_discrepancies.csv
         if(pH_flags.empty):
             pH_flags = pH_flags.append({'Timestamp' : readable_ts, 'Message' : message}, ignore_index=True)
@@ -573,7 +811,7 @@ def sendData(temp, ph, tds):
         get_ts = datetime.datetime.now(tz).timestamp()
         readable_ts = time.ctime(get_ts)
         #message
-        message = "System pH exceeded above desired value."
+        message = f"System pH ({pH_curr}) exceeded above desired value ({pH_ul})."
         #append message and timestamp to t_discrepancies.csv
         if(pH_flags.empty):
             pH_flags = pH_flags.append({'Timestamp' : readable_ts, 'Message' : message}, ignore_index=True)
@@ -600,7 +838,7 @@ def sendData(temp, ph, tds):
         get_ts = datetime.datetime.now(tz).timestamp()
         readable_ts = time.ctime(get_ts)
         #message
-        message = "System running low on TDS."
+        message = f"System running low on TDS ({tds_curr})."
         #append message and timestamp to t_discrepancies.csv
         if(tds_flags.empty):
             tds_flags = tds_flags.append({'Timestamp' : readable_ts, 'Message' : message}, ignore_index=True)
@@ -625,7 +863,7 @@ def sendData(temp, ph, tds):
         get_ts = datetime.datetime.now(tz).timestamp()
         readable_ts = time.ctime(get_ts)
         #message
-        message = "System TDS exceeded above desired value."
+        message = f"System TDS ({tds_curr}) exceeded above desired value ({tds_ul})."
         #append message and timestamp to t_discrepancies.csv
         if(tds_flags.empty):
             tds_flags = tds_flags.append({'Timestamp' : readable_ts, 'Message' : message}, ignore_index=True)
